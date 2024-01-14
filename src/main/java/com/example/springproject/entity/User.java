@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "user")
 @Builder
 public class User extends BaseEntityWithUpdater {
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
     @Column(name = "password")
     private String password;

@@ -1,22 +1,27 @@
 package com.example.springproject.controller.advice;
 
 import com.example.springproject.dto.base.ResponseGeneral;
-import com.example.springproject.exception.base.BadRequestException;
-import com.example.springproject.exception.base.BaseException;
-import com.example.springproject.exception.base.ConflictException;
-import com.example.springproject.exception.base.NotFoundException;
+import com.example.springproject.exception.base.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.example.springproject.constant.ExceptionCode.GENERIC_CODE;
+import static com.example.springproject.constant.ExceptionCode.*;
 
 @RestControllerAdvice
 @ControllerAdvice
@@ -55,6 +60,33 @@ public class ExceptionHandlerAdvice {
     String message = getMessage(ex.getCode(), locale, ex.getParams());
     ResponseGeneral<Object> response = ResponseGeneral.of(ex.getStatus(), message, null);
     return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+  }
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ResponseGeneral<Map<String, String>> handleBindingException(MethodArgumentNotValidException ex, WebRequest webRequest){
+    BindingResult bindingResult = ex.getBindingResult();
+    Map<String, String> errors = new HashMap<>();
+
+    for (FieldError fieldError : bindingResult.getFieldErrors()) {
+      errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+    }
+    return ResponseGeneral.<Map<String, String>>of(400, "Error binding", errors);
+  }
+
+  @ExceptionHandler(DuplicateException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ResponseEntity<ResponseGeneral<Object>> handleDuplicateData(DuplicateException ex, WebRequest webRequest, Locale locale){
+    String message = getMessage(ex.getCode(), locale, null);
+    ResponseGeneral<Object> response = ResponseGeneral.of(ex.getStatus(), message, null);
+    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ResponseEntity<ResponseGeneral<Object>> handleBadCredentials(Exception ex, WebRequest webRequest, Locale locale){
+    String message = getMessage(BAD_CREDENTIALS_CODE, locale, null);
+    ResponseGeneral<Object> response = ResponseGeneral.of(HttpStatus.BAD_REQUEST.value(), message, null);
+    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
   }
   @ExceptionHandler(RuntimeException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
