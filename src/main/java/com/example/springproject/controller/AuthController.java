@@ -18,14 +18,26 @@ import static com.example.springproject.constant.CommonConstants.LANGUAGE;
 import static com.example.springproject.constant.MessageCodeConstant.LOGIN_CODE;
 import static com.example.springproject.constant.MessageCodeConstant.REGISTER_CODE;
 
+/**
+ * Controller class handling authentication-related endpoints.
+ * This class provides endpoints for user registration and login.
+ */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final MessageService messageService;
+
     private final AuthenticationService authenticationService;
 
+    /**
+     * Endpoint for registering a new user.
+     *
+     * @param userRequest Information about the user to be registered.
+     * @param language    The language for message localization.
+     * @return ResponseGeneral containing information about user registration and corresponding message.
+     */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseGeneral<UserResponse> register(@Validated @RequestBody UserRequest userRequest,
@@ -33,6 +45,13 @@ public class AuthController {
         return ResponseGeneral.ofCreated(messageService.getMessage(REGISTER_CODE, language), authenticationService.register(userRequest));
     }
 
+    /**
+     * Endpoint for user login.
+     *
+     * @param authenticationRequest User authentication information.
+     * @param language              The language for message localization.
+     * @return ResponseGeneral containing information about user login and corresponding message.
+     */
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public ResponseGeneral<AuthenticationResponse> logIn(@Validated @RequestBody AuthenticationRequest authenticationRequest,

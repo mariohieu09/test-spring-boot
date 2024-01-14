@@ -19,21 +19,38 @@ import java.io.IOException;
 
 import static com.example.springproject.constant.CommonConstants.BEARER_TOKEN_PREFIX;
 import static com.example.springproject.constant.CommonConstants.BEARER_PREFIX_LENGTH;
+import static com.example.springproject.constant.CommonConstants.AUTHORIZATION_HEADER;
 
+/**
+ * JwtAuthenticationFilter is a component responsible for filtering and processing JWT-based authentication.
+ * It intercepts incoming requests, extracts JWT from the Authorization header, and validates the token.
+ * If the token is valid, it sets up the authentication details in the Spring Security context.
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     @Autowired
     private JwtService jwtService;
+
     @Autowired
     private UserDetailsService userDetailsService;
 
+    /**
+     * Method to filter incoming HTTP requests, extract JWT, and process authentication.
+     *
+     * @param request     HttpServletRequest representing the incoming request.
+     * @param response    HttpServletResponse representing the outgoing response.
+     * @param filterChain FilterChain for continuing the filter chain.
+     * @throws ServletException if an error occurs during the filter process.
+     * @throws IOException      if an I/O error occurs.
+     */
     @Override
     protected void doFilterInternal(
            @NonNull HttpServletRequest request,
            @NonNull HttpServletResponse response,
            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        final String authHeader = request.getHeader(AUTHORIZATION_HEADER);
         final String jwt;
         final String userName;
 

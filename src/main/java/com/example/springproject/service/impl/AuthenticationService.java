@@ -26,6 +26,10 @@ import java.util.Optional;
 import static com.example.springproject.constant.ExceptionCode.DUPLICATE_CODE;
 import static com.example.springproject.constant.ExceptionCode.DUPLICATE_USERNAME_CODE;
 
+/**
+ * AuthenticationService class provides the implementation for user registration and authentication operations.
+ * It includes methods for user registration, login, and checking for duplicate usernames.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -38,6 +42,14 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Registers a new user with the provided information.
+     * Performs username duplication check and encodes the password.
+     * Generates a JWT token for the registered user.
+     *
+     * @param dto UserRequest containing user information
+     * @return UserResponse with registered user details and JWT token
+     */
     @Transactional
     public UserResponse register(UserRequest dto){
         checkUsernameIfExist(dto.getUsername());
@@ -56,6 +68,13 @@ public class AuthenticationService {
         );
     }
 
+    /**
+     * Performs user authentication using the provided credentials.
+     * Generates a JWT token for the authenticated user.
+     *
+     * @param authenticationRequest AuthenticationRequest containing user credentials
+     * @return AuthenticationResponse with user ID and JWT token
+     */
     public AuthenticationResponse logIn(AuthenticationRequest authenticationRequest) {
        var token = new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(),authenticationRequest.getPassword());
        CustomUserDetail customUserDetail = (CustomUserDetail) authenticationManager.authenticate(token).getPrincipal();
@@ -65,6 +84,12 @@ public class AuthenticationService {
                 .build();
     }
 
+    /**
+     * Checks if the provided username already exists in the database.
+     * Throws DuplicateException if a duplicate username is found.
+     *
+     * @param username Username to check for duplication
+     */
     private void checkUsernameIfExist(String username){
         Optional<User> optionalUser = userRepository.findUserByUsername(username);
         if(optionalUser.isPresent()){

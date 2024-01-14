@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data Transfer Object (DTO) representing the response for user details.
+ * It contains fields for the user ID, username, email, phone number, user role, and an authentication token.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

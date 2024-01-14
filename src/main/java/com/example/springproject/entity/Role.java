@@ -10,6 +10,11 @@ import java.util.Set;
 
 import static com.example.springproject.entity.Permission.*;
 
+/**
+ * Enumeration representing different roles in the system.
+ * Each role has a corresponding set of permissions associated with it.
+ * Provides a method to retrieve authorities for Spring Security.
+ */
 @RequiredArgsConstructor
 public enum Role {
     USER(Collections.emptySet()),

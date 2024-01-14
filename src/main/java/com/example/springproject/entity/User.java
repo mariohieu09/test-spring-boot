@@ -7,6 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity class representing a user in the system.
+ * Extends the BaseEntityWithUpdater class to inherit common fields for auditing.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
