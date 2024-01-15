@@ -1,5 +1,6 @@
 package com.example.springproject.security;
 
+import com.example.springproject.entity.Permission;
 import com.example.springproject.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -70,7 +71,7 @@ public class SecurityConfig {
 //              )
                 .authorizeHttpRequests(
                         authorize -> authorize.requestMatchers(whiteList()).permitAll()
-                                .requestMatchers("/api/v1/users/**").hasAnyRole(ADMIN.name())
+                                .requestMatchers("/api/v1/users/**").hasAuthority(Permission.VIEW_USER_DETAILS.name())
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
