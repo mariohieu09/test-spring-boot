@@ -6,6 +6,7 @@ import com.example.springproject.dto.response.AuthenticationResponse;
 import com.example.springproject.dto.response.UserResponse;
 import com.example.springproject.entity.Role;
 import com.example.springproject.entity.User;
+import com.example.springproject.exception.InvalidDateOfBirthException;
 import com.example.springproject.exception.base.DuplicateException;
 import com.example.springproject.repository.UserRepository;
 import com.example.springproject.security.CustomUserDetail;
@@ -21,8 +22,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Optional;
 
+import static com.example.springproject.constant.CommonConstants.AGE_THRESHOLD;
 import static com.example.springproject.constant.ExceptionCode.DUPLICATE_CODE;
 import static com.example.springproject.constant.ExceptionCode.DUPLICATE_USERNAME_CODE;
 
@@ -52,6 +57,7 @@ public class AuthenticationService {
      */
     @Transactional
     public UserResponse register(UserRequest dto){
+        DateUtils.checkDateOfBirth(dto.getDateOfBirth());
         checkUsernameIfExist(dto.getUsername());
         User user = MapperUtils.toEntity(dto, User.class);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -97,4 +103,10 @@ public class AuthenticationService {
             throw new DuplicateException(DUPLICATE_USERNAME_CODE);
         }
     }
+    /**
+     * method that allows check Date Of Birth of users
+     *
+     * @param dateOfBirth
+     */
+
 }

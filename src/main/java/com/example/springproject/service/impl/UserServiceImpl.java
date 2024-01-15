@@ -16,6 +16,7 @@ import com.example.springproject.repository.UserRepository;
 import com.example.springproject.security.CustomUserDetail;
 import com.example.springproject.service.UserService;
 import com.example.springproject.service.base.BaseServiceImpl;
+import com.example.springproject.utils.DateUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.data.domain.Page;
@@ -58,7 +59,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
     @Transactional
     @Override
     public UserResponse create(UserRequest request) {
-        this.checkDateOfBirth(request.getDateOfBirth());
+        DateUtils.checkDateOfBirth(request.getDateOfBirth());
         this.checkUsernameIfExist(request.getUsername());
 
         User user = new User(
@@ -92,7 +93,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
     @Transactional
     public UserUpdateResponse update(String id, UserUpdateRequest request) {
 
-        this.checkDateOfBirth(request.getDateOfBirth());
+        DateUtils.checkDateOfBirth(request.getDateOfBirth());
         User user = this.checkUserExist(id);
 
         this.setValueForUpdate(user, request);
@@ -170,27 +171,6 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
         return PageResponse.of(listAllUsers.getContent(), (int) listAllUsers.getTotalElements());
     }
 
-    /**
-     * method that allows check Date Of Birth of users
-     *
-     * @param dateOfBirth
-     */
-    private void checkDateOfBirth(Date dateOfBirth) {
-        LocalDate currentDate = LocalDate.now();
-        LocalDate birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-        int age = currentDate.getYear() - birthDate.getYear();
-
-        if (currentDate.getMonthValue() < birthDate.getMonthValue() ||
-                (currentDate.getMonthValue() == birthDate.getMonthValue() &&
-                        currentDate.getDayOfMonth() < birthDate.getDayOfMonth())) {
-            age--;
-        }
-
-        if (age < AGE_THRESHOLD) {
-            throw new InvalidDateOfBirthException();
-        }
-    }
 
     /**
      * method that allows check Username Exist
