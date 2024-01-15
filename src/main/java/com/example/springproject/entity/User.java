@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * Entity class representing a user in the system.
  * Extends the BaseEntityWithUpdater class to inherit common fields for auditing.
@@ -26,6 +28,17 @@ public class User extends BaseEntityWithUpdater {
     private String email;
     @Column(name = "phone")
     private String phone;
+    @Column(name = "dateofbirth")
+    private Date dateOfBirth;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public User(String username, String password, String email, String phone, Date dateOfBirth) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.phone = phone;
+        this.dateOfBirth = dateOfBirth;
+        this.role = Role.USER;
+    }
 }

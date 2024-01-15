@@ -53,7 +53,7 @@ public class SecurityConfig {
                 "/api/auth/**",
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
-                "/api/v1/users/**"
+
         };
     }
 
@@ -70,6 +70,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorize -> authorize.requestMatchers(whiteList()).permitAll()
+                                .requestMatchers("/api/v1/users/**").hasAuthority(Permission.VIEW_USER_DETAILS.name())
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();

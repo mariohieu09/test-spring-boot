@@ -64,7 +64,8 @@ public class AuthenticationService {
                 user.getEmail(),
                 user.getPhone(),
                 user.getRole(),
-                jwtService.generateToken(new CustomUserDetail(user))
+                jwtService.generateToken(new CustomUserDetail(user)),
+                user.getDateOfBirth()
         );
     }
 
