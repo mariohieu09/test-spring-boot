@@ -70,7 +70,7 @@ public class SecurityConfig {
 //              )
                 .authorizeHttpRequests(
                         authorize -> authorize.requestMatchers(whiteList()).permitAll()
-                                .requestMatchers("/api/v1/users/**").hasAnyRole(ADMIN.name(), MANAGER.name())
+                                .requestMatchers("/api/v1/users/**").hasAnyRole(ADMIN.name())
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
