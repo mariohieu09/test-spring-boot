@@ -1,8 +1,10 @@
 package com.example.springproject.security;
 
+import com.example.springproject.entity.Permission;
 import com.example.springproject.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -28,7 +30,7 @@ import static com.example.springproject.entity.Role.*;
  */
 @EnableWebSecurity
 @Configuration
-@EnableMethodSecurity
+//@EnableMethodSecurity
 public class SecurityConfig {
 
     /**
@@ -50,7 +52,8 @@ public class SecurityConfig {
         return new String[]{
                 "/api/auth/**",
                 "/swagger-ui/**",
-                "/v3/api-docs/**"
+                "/v3/api-docs/**",
+                "/api/v1/users/**"
         };
     }
 
@@ -65,12 +68,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-//              .authorizeHttpRequests(
-//                    authorize -> authorize.anyRequest().permitAll()
-//              )
                 .authorizeHttpRequests(
                         authorize -> authorize.requestMatchers(whiteList()).permitAll()
-                                .requestMatchers("/api/v1/users/**").hasAnyRole(ADMIN.name())
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
