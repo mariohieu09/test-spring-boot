@@ -6,6 +6,9 @@ import com.example.springproject.dto.request.UserUpdateRequest;
 import com.example.springproject.dto.response.UserResponse;
 import com.example.springproject.dto.response.UserUpdateResponse;
 
+/**
+ * Service interface defining operations related to User entities.
+ */
 public interface UserService {
     UserResponse create(UserRequest request);
 

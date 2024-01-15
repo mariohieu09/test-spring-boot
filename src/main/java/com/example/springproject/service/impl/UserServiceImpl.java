@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import static com.example.springproject.constant.CommonConstants.AGE_THRESHOLD;
+import static com.example.springproject.constant.CommonConstants.AUTHORIZATION_PREFIX;
 import static com.example.springproject.constant.ExceptionCode.DUPLICATE_USERNAME_CODE;
 
 public class UserServiceImpl extends BaseServiceImpl<User> implements UserService {
@@ -106,10 +107,19 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
                 user.getDateOfBirth()
         );
     }
+
+    /**
+     * Retrieves user information by ID.
+     *
+     * @param id The ID of the user to retrieve.
+     * @return The UserResponse containing user details.
+     * @throws UserNotFoundException if the user with the specified ID is not found.
+     * @throws BadRequestException    if the request is invalid.
+     */
     @Override
     public UserResponse getUserById(String id){
         CustomUserDetail customUserDetail = (CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(customUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_" + Role.ADMIN.name()))){
+        if(customUserDetail.getAuthorities().contains(new SimpleGrantedAuthority(AUTHORIZATION_PREFIX + Role.ADMIN.name()))){
             User user = repository.findById(id).orElseThrow(UserNotFoundException::new);
             return UserResponse.builder()
                     .id(user.getId())
@@ -120,9 +130,8 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
                     .dateOfBirth(user.getDateOfBirth())
                     .build();
         }
-        System.out.println(customUserDetail.getAuthorities());
-        System.out.println(customUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_" + Role.ADMIN.name())));
-        if(!id.equals(customUserDetail.getUser().getId()) && customUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_" + Role.USER.name()))){
+
+        if(!id.equals(customUserDetail.getUser().getId()) && customUserDetail.getAuthorities().contains(new SimpleGrantedAuthority(AUTHORIZATION_PREFIX + Role.USER.name()))){
             throw new BadRequestException();
         }
         User user = repository.findById(id).orElseThrow(UserNotFoundException::new);
@@ -218,7 +227,10 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
         user.setDateOfBirth(update.getDateOfBirth());
     }
 
-
+    /**
+     * Initializes the application by creating an admin user.
+     * This method is annotated with @PostConstruct to ensure it runs after the bean is constructed.
+     */
     @PostConstruct
     @Transactional
     void createAdmin() {
@@ -231,6 +243,10 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
         repository.save(admin);
     }
 
+    /**
+     * Cleans up resources and removes the admin user during application shutdown.
+     * This method is annotated with @PreDestroy to ensure it runs before the bean is destroyed.
+     */
     @PreDestroy
     @Transactional
     void deleteAdmin() {

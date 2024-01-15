@@ -1,5 +1,6 @@
 package com.example.springproject.entity;
 
+import com.example.springproject.constant.CommonConstants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -39,7 +40,7 @@ public enum Role {
                 .stream()
                 .map(permission -> new SimpleGrantedAuthority(permission.name()))
                 .toList());
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
+        authorities.add(new SimpleGrantedAuthority(CommonConstants.AUTHORIZATION_PREFIX + this.name()));
         return authorities;
     }
 }

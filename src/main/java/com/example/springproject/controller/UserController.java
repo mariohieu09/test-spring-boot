@@ -67,6 +67,15 @@ public class UserController {
         return ResponseGeneral.ofCreated(messageService.getMessage(CREATE_USER, language),
                 userService.create(request));
     }
+
+    /**
+     * Handles PUT requests to update a user by ID.
+     *
+     * @param request  The request body containing updated user information.
+     * @param id       The ID of the user to update.
+     * @param language The language for message localization.
+     * @return A ResponseEntity with a standardized response containing the localized success message and updated user data.
+     */
     @PutMapping("/update/{id}")
     public ResponseGeneral<UserUpdateResponse> update(
             @Validated
@@ -116,6 +125,13 @@ public class UserController {
         return ResponseGeneral.ofSuccess(messageService.getMessage(DELETE_USER, language));
     }
 
+    /**
+     * Handles GET requests to retrieve a user by ID.
+     *
+     * @param id       The ID of the user to retrieve.
+     * @param language The language for message localization.
+     * @return A ResponseEntity with a standardized response containing the localized success message and user data.
+     */
     @GetMapping("/get/{id}")
     public ResponseGeneral<UserResponse> getUserById(
             @PathVariable String id,

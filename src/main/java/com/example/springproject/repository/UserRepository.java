@@ -14,7 +14,20 @@ import java.util.Optional;
  */
 public interface UserRepository extends BaseRepository<User>{
 
+    /**
+     * Finds a user by the provided username.
+     *
+     * @param username The username of the user to find.
+     * @return An Optional containing the user if found, otherwise empty.
+     */
     Optional<User> findUserByUsername(String username);
+
+    /**
+     * Custom query to retrieve a Page of UserResponse objects with specific fields.
+     *
+     * @param pageable Pageable configuration for pagination.
+     * @return A Page of UserResponse objects.
+     */
     @Query("""
               select new com.example.springproject.dto.response.UserResponse
               (u.id, u.username,u.email,u.phone,u.role,u.dateOfBirth)
@@ -22,7 +35,9 @@ public interface UserRepository extends BaseRepository<User>{
           """)
     Page<UserResponse> findAllUser(Pageable pageable);
 
-
+    /**
+     * Invokes a stored procedure named "REMOVE_ADMIN" to remove admin privileges.
+     */
     @Procedure(procedureName = "REMOVE_ADMIN")
     void removeAdmin();
 }
