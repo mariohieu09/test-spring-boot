@@ -6,6 +6,7 @@ import com.example.springproject.dto.request.UserUpdateRequest;
 import com.example.springproject.dto.response.UserResponse;
 import com.example.springproject.dto.response.UserUpdateResponse;
 import com.example.springproject.entity.User;
+import com.example.springproject.exception.InvalidDateOfBirthException;
 import com.example.springproject.exception.base.BadRequestException;
 import com.example.springproject.exception.base.DuplicateException;
 import com.example.springproject.exception.base.UserNotFoundException;
@@ -138,7 +139,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
         }
 
         if (age < AGE_THRESHOLD) {
-            throw new BadRequestException();
+            throw new InvalidDateOfBirthException();
         }
     }
 
