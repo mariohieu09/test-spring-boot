@@ -5,6 +5,7 @@ import com.example.springproject.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 
 import java.util.Optional;
 
@@ -20,4 +21,8 @@ public interface UserRepository extends BaseRepository<User>{
               from User u
           """)
     Page<UserResponse> findAllUser(Pageable pageable);
+
+
+    @Procedure(procedureName = "REMOVE_ADMIN")
+    void removeAdmin();
 }

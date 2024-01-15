@@ -5,6 +5,8 @@ import com.example.springproject.dto.request.UserRequest;
 import com.example.springproject.dto.request.UserUpdateRequest;
 import com.example.springproject.dto.response.UserResponse;
 import com.example.springproject.dto.response.UserUpdateResponse;
+import com.example.springproject.entity.Permission;
+import com.example.springproject.entity.Role;
 import com.example.springproject.entity.User;
 import com.example.springproject.exception.InvalidDateOfBirthException;
 import com.example.springproject.exception.base.BadRequestException;
@@ -14,9 +16,14 @@ import com.example.springproject.repository.UserRepository;
 import com.example.springproject.security.CustomUserDetail;
 import com.example.springproject.service.UserService;
 import com.example.springproject.service.base.BaseServiceImpl;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -31,10 +38,13 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
     private final UserRepository repository;
     private final JwtService jwtService;
 
-    public UserServiceImpl(UserRepository repository, JwtService jwtService) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserRepository repository, JwtService jwtService, PasswordEncoder passwordEncoder) {
         super(repository);
         this.repository = repository;
         this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -52,7 +62,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 
         User user = new User(
                 request.getUsername(),
-                request.getPassword(),
+                passwordEncoder.encode(request.getPassword()),
                 request.getEmail(),
                 request.getPhone(),
                 request.getDateOfBirth()
@@ -80,6 +90,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
     @Override
     @Transactional
     public UserUpdateResponse update(String id, UserUpdateRequest request) {
+
         this.checkDateOfBirth(request.getDateOfBirth());
         User user = this.checkUserExist(id);
 
@@ -94,6 +105,35 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
                 user.getRole(),
                 user.getDateOfBirth()
         );
+    }
+    @Override
+    public UserResponse getUserById(String id){
+        CustomUserDetail customUserDetail = (CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(customUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_" + Role.ADMIN.name()))){
+            User user = repository.findById(id).orElseThrow(UserNotFoundException::new);
+            return UserResponse.builder()
+                    .id(user.getId())
+                    .phone(user.getPhone())
+                    .role(user.getRole())
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .dateOfBirth(user.getDateOfBirth())
+                    .build();
+        }
+        System.out.println(customUserDetail.getAuthorities());
+        System.out.println(customUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_" + Role.ADMIN.name())));
+        if(!id.equals(customUserDetail.getUser().getId()) && customUserDetail.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_" + Role.USER.name()))){
+            throw new BadRequestException();
+        }
+        User user = repository.findById(id).orElseThrow(UserNotFoundException::new);
+        return UserResponse.builder()
+                .id(user.getId())
+                .phone(user.getPhone())
+                .role(user.getRole())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .dateOfBirth(user.getDateOfBirth())
+                .build();
     }
 
     /**
@@ -172,9 +212,32 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
      * @param update
      */
     private void setValueForUpdate(User user, UserUpdateRequest update) {
-        user.setPassword(update.getPassword());
+        user.setPassword(passwordEncoder.encode(update.getPassword()));
         user.setPhone(update.getPhone());
         user.setEmail(update.getEmail());
         user.setDateOfBirth(update.getDateOfBirth());
     }
+
+
+    @PostConstruct
+    @Transactional
+    void createAdmin() {
+        repository.removeAdmin();
+        User admin = User.builder().
+                username("admin").
+                password(passwordEncoder.encode("123456")).
+                role(Role.ADMIN).
+                build();
+        repository.save(admin);
+    }
+
+    @PreDestroy
+    @Transactional
+    void deleteAdmin() {
+        repository.removeAdmin();
+    }
+
 }
+
+
+

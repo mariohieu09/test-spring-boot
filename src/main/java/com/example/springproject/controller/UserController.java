@@ -10,6 +10,7 @@ import com.example.springproject.service.UserService;
 import com.example.springproject.service.base.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.springproject.constant.CommonConstants.*;
@@ -56,8 +57,9 @@ public class UserController {
      * @param language The language for message localization.
      * @return A ResponseEntity with a standardized response containing the localized message and the created user data.
      */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseGeneral<UserResponse> create(
+            @Validated
             @RequestBody UserRequest request,
             @RequestHeader(name = LANGUAGE, defaultValue = DEFAULT_LANGUAGE) String language
     ) {
@@ -65,8 +67,9 @@ public class UserController {
         return ResponseGeneral.ofCreated(messageService.getMessage(CREATE_USER, language),
                 userService.create(request));
     }
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseGeneral<UserUpdateResponse> update(
+            @Validated
             @RequestBody UserUpdateRequest request,
             @PathVariable String id,
             @RequestHeader(name = LANGUAGE, defaultValue = DEFAULT_LANGUAGE) String language
@@ -103,7 +106,7 @@ public class UserController {
      * @param language The language for message localization.
      * @return A ResponseEntity with a standardized response containing the localized success message.
      */
-    @DeleteMapping("{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseGeneral<Void> delete(
             @PathVariable String id,
             @RequestHeader(name = LANGUAGE, defaultValue = DEFAULT_LANGUAGE) String language
@@ -111,5 +114,13 @@ public class UserController {
         log.info("(delete) id : {}", id);
         userService.delete(id);
         return ResponseGeneral.ofSuccess(messageService.getMessage(DELETE_USER, language));
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseGeneral<UserResponse> getUserById(
+            @PathVariable String id,
+            @RequestHeader(name = LANGUAGE, defaultValue = DEFAULT_LANGUAGE) String language
+    ){
+        return ResponseGeneral.ofSuccess(messageService.getMessage(GET_USER, language), userService.getUserById(id));
     }
 }

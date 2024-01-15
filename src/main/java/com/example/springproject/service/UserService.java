@@ -14,4 +14,6 @@ public interface UserService {
     void delete(String id);
 
     PageResponse<UserResponse> viewAll(int size, int page);
+
+    UserResponse getUserById(String id);
 }

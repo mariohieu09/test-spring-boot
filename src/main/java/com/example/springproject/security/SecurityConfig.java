@@ -66,12 +66,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-//              .authorizeHttpRequests(
-//                    authorize -> authorize.anyRequest().permitAll()
-//              )
                 .authorizeHttpRequests(
                         authorize -> authorize.requestMatchers(whiteList()).permitAll()
-                                .requestMatchers("/api/v1/users/**").hasAuthority(Permission.VIEW_USER_DETAILS.name())
+                                .requestMatchers("/api/v1/users/get/{id}").hasAuthority(Permission.VIEW_USER_DETAILS.name())
+                                .requestMatchers("/api/v1/users/update/{id}").hasAuthority(Permission.UPDATE_USER.name())
+                                .requestMatchers("/api/v1/users/all").hasAuthority(Permission.VIEW_ALL_USERS.name())
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
