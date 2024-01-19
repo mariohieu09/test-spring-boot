@@ -1,6 +1,7 @@
 package com.example.springproject.security;
 
 import com.example.springproject.entity.Permission;
+import com.example.springproject.entity.Role;
 import com.example.springproject.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -67,10 +68,14 @@ public class SecurityConfig {
         return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-                        authorize -> authorize.requestMatchers(whiteList()).permitAll()
-                                .requestMatchers("/api/v1/users/get/{id}").hasAuthority(Permission.VIEW_USER_DETAILS.name())
-                                .requestMatchers("/api/v1/users/update/{id}").hasAuthority(Permission.UPDATE_USER.name())
-                                .requestMatchers("/api/v1/users/all").hasAuthority(Permission.VIEW_ALL_USERS.name())
+                        authorize -> {
+                            authorize.requestMatchers(whiteList()).permitAll();
+                            // Using the roll has full authority to provide endpoint and permission name for this config loop
+                            // We're using ADMIN roll
+                            for(Permission p : ADMIN.getPermissionSet()){
+                                authorize.requestMatchers(p.getEndPoints()).hasAuthority(p.name());
+                            }
+                        }
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
